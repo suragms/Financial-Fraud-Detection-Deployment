@@ -6,7 +6,7 @@ Detect fraudulent financial transactions with machine learning and present risk 
 
 ## Current phase
 
-**Phase 4 — Leakage-safe feature engineering.**
+**Phase 5 — Leakage-safe ML training pipelines.**
 
 ML training and dashboard implementation are planned for later phases.
 
@@ -22,13 +22,10 @@ Primary dataset: `data/raw/financial_fraud_detection_dataset.csv`
 
 Current stack:
 
-- Python
-- pandas
-- NumPy
-- Plotly
-- pytest
+- Python, pandas, NumPy, Plotly, pytest
+- scikit-learn, imbalanced-learn, XGBoost, joblib
 
-Later phases may add scikit-learn, imbalanced-learn, XGBoost, Streamlit, and joblib.
+Streamlit belongs to a later phase.
 
 ## Project structure
 
@@ -81,6 +78,16 @@ y = extract_target(df)
 
 Suspicious_Keyword, Customer_ID, Transaction_ID, Transaction_Date, and Fraudulent are excluded from X. Categorical columns are not one-hot encoded here (Phase 5 will fit encoders on training data only).
 
+## How to train candidate models
+
+From the project root:
+
+```bash
+python run_training.py
+```
+
+This fits preprocess + SMOTE or class-weight pipelines on the training fold only and writes `models/baseline/*.joblib`. No model is declared best.
+
 ## How to run tests
 
 
@@ -92,4 +99,4 @@ pytest
 
 - `RANDOM_STATE = 42` in `src/utils/seeds.py` is the single seed for later modeling.
 - `Suspicious_Keyword` is retained as a data column and is not used as an ML feature in this phase.
-- No model performance is claimed. No models have been trained.
+- No model is declared best in Phase 5. Comparison belongs to Phase 6.

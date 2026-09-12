@@ -1,0 +1,100 @@
+{
+  "dataset_filename": "financial_fraud_detection_dataset.csv",
+  "dataset_row_count": 5000,
+  "target_column": "Fraudulent",
+  "random_state": 42,
+  "test_size": 0.2,
+  "feature_count": 18,
+  "feature_names": [
+    "Transaction_Amount",
+    "Average_Spend",
+    "Previous_Transactions",
+    "Account_Age_Days",
+    "amount_to_average_ratio",
+    "transaction_hour",
+    "transaction_day_of_week",
+    "transaction_month",
+    "transaction_year",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "Is_International",
+    "Merchant_Category",
+    "Payment_Method",
+    "Device_Type",
+    "Location"
+  ],
+  "numerical_features": [
+    "Transaction_Amount",
+    "Average_Spend",
+    "Previous_Transactions",
+    "Account_Age_Days",
+    "amount_to_average_ratio",
+    "transaction_hour",
+    "transaction_day_of_week",
+    "transaction_month",
+    "transaction_year",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "Is_International"
+  ],
+  "categorical_features": [
+    "Merchant_Category",
+    "Payment_Method",
+    "Device_Type",
+    "Location"
+  ],
+  "excluded_features": [
+    "Transaction_ID",
+    "Customer_ID",
+    "Suspicious_Keyword",
+    "Fraudulent",
+    "Transaction_Date"
+  ],
+  "smote_strategy": {
+    "method": "SMOTE",
+    "when": "after train/test split",
+    "applied_to": "transformed X_train only",
+    "sampling_strategy": "auto",
+    "k_neighbors": 5,
+    "random_state": 42,
+    "one_hot_sparse_output": false,
+    "note": "Dense one-hot is used so SMOTE can run on this 5,000-row table."
+  },
+  "class_weight_strategy": {
+    "sklearn": "class_weight='balanced' for LogisticRegression, DecisionTree, RandomForest",
+    "xgboost": "scale_pos_weight = n_neg_train / n_pos_train",
+    "scale_pos_weight_train": 9.362694300518134
+  },
+  "model_names": [
+    "logistic_regression_smote",
+    "decision_tree_smote",
+    "random_forest_smote",
+    "xgboost_smote",
+    "logistic_regression_class_weight",
+    "decision_tree_class_weight",
+    "random_forest_class_weight",
+    "xgboost_class_weight"
+  ],
+  "artifact_names": [
+    "logistic_regression_smote.joblib",
+    "decision_tree_smote.joblib",
+    "random_forest_smote.joblib",
+    "xgboost_smote.joblib",
+    "logistic_regression_class_weight.joblib",
+    "decision_tree_class_weight.joblib",
+    "random_forest_class_weight.joblib",
+    "xgboost_class_weight.joblib"
+  ],
+  "created_at_utc": "2026-09-12T07:56:29.602025+00:00",
+  "train_row_count": 4000,
+  "test_row_count": 1000,
+  "train_fraud_count": 386,
+  "test_fraud_count": 96,
+  "train_fraud_rate": 0.0965,
+  "test_fraud_rate": 0.096,
+  "overlapping_transaction_ids": 0
+}
