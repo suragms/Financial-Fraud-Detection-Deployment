@@ -12,6 +12,8 @@ artifacts/*
 !artifacts/feature_preview.csv
 !artifacts/model_evaluation/
 !artifacts/model_evaluation/**
+!artifacts/model_selection/
+!artifacts/model_selection/**
 data/processed/
 *.db
 .ipynb_checkpoints/

@@ -1,0 +1,2 @@
+threshold,Accuracy,Precision,Recall,F1,False_Positive_Rate,False_Negative_Rate,TN,FP,FN,TP,flagged,flagged_rate,legitimate_predicted,legitimate_predicted_rate,support,ROC_AUC,PR_AUC
+0.1,0.743,0.23778501628664495,0.7604166666666666,0.36228287841191065,0.2588495575221239,0.23958333333333334,670,234,23,73,307,0.307,693,0.693,1000,0.7645879424778762,0.2620245745630227

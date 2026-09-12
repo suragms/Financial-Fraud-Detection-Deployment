@@ -1,0 +1,142 @@
+{
+  "model_name": "Logistic Regression",
+  "strategy": "Class Weight",
+  "model_version": "1.0.0-phase7",
+  "status": "production candidate",
+  "artifact_path": "models/production/final_fraud_pipeline.joblib",
+  "source_candidate": "models/baseline/logistic_regression_class_weight.joblib",
+  "feature_list": [
+    "Transaction_Amount",
+    "Average_Spend",
+    "Previous_Transactions",
+    "Account_Age_Days",
+    "amount_to_average_ratio",
+    "transaction_hour",
+    "transaction_day_of_week",
+    "transaction_month",
+    "transaction_year",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "Is_International",
+    "Merchant_Category",
+    "Payment_Method",
+    "Device_Type",
+    "Location"
+  ],
+  "feature_count": 18,
+  "excluded_features": [
+    "Transaction_ID",
+    "Customer_ID",
+    "Suspicious_Keyword",
+    "Fraudulent",
+    "Transaction_Date"
+  ],
+  "preprocessing": {
+    "numeric": "RobustScaler",
+    "numeric_features": [
+      "Transaction_Amount",
+      "Average_Spend",
+      "Previous_Transactions",
+      "Account_Age_Days",
+      "amount_to_average_ratio",
+      "transaction_hour",
+      "transaction_day_of_week",
+      "transaction_month",
+      "transaction_year",
+      "hour_sin",
+      "hour_cos",
+      "dow_sin",
+      "dow_cos",
+      "Is_International"
+    ],
+    "categorical": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
+    "categorical_features": [
+      "Merchant_Category",
+      "Payment_Method",
+      "Device_Type",
+      "Location"
+    ],
+    "fit_on": "training fold only"
+  },
+  "calibration_method": "sigmoid",
+  "calibration_reason": "Sigmoid calibration reduced inner-validation Brier from 0.156707 to 0.070583 (drop 0.086124) and log loss from 0.490549 to 0.242728. The improvement is large enough to justify wrapping the selected Logistic Regression + Class Weight pipeline with CalibratedClassifierCV (method='sigmoid', cv=5, ensemble=False) fit on the full training fold.",
+  "production_threshold": 0.1,
+  "threshold_selection": {
+    "data": "5-fold out-of-fold probabilities on the 4,000-row training fold",
+    "grid": [
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9
+    ],
+    "rule": "recall at least 0.70 and FPR at most 0.35, then maximize F1 / recall / precision and minimize FPR",
+    "reason": "Threshold 0.10 was selected from training out-of-fold probabilities (5-fold CV on 4000 training rows, 386 training frauds). It has training OOF recall 0.8161 and FPR 0.2438, with F1 0.3982. The default 0.50 cut was not adopted automatically. Selection rule: recall at least 0.70 and FPR at most 0.35, then maximize F1 / recall / precision and minimize FPR. On the same training OOF table, 0.15 had a slightly higher F1 but recall below 0.70, so it failed the primary fraud-recall screen."
+  },
+  "risk_score_method": "predicted_fraud_probability * 100, clipped to [0, 100]",
+  "risk_score_disclaimer": "The risk score is a model risk indicator, not proof that a transaction is fraudulent.",
+  "risk_bands": [
+    {
+      "name": "Low Risk",
+      "range": "0-9",
+      "min_inclusive": 0.0,
+      "max_exclusive": 10.0
+    },
+    {
+      "name": "Medium Risk",
+      "range": "10-19",
+      "min_inclusive": 10.0,
+      "max_exclusive": 20.0
+    },
+    {
+      "name": "High Risk",
+      "range": "20-39",
+      "min_inclusive": 20.0,
+      "max_exclusive": 40.0
+    },
+    {
+      "name": "Critical Risk",
+      "range": "40-100",
+      "min_inclusive": 40.0,
+      "max_exclusive": 100.01
+    }
+  ],
+  "risk_band_reason": "Sigmoid calibration mapped probabilities onto the training prevalence scale (inner-val mean predicted ~0.10). The original 0-29 Low band would have placed almost every flagged review in Low Risk. Bands were therefore aligned to the frozen training threshold with round cut-points: Low is below-threshold, Medium/High/Critical partition the flagged range. These cuts were not estimated from test labels.",
+  "random_state": 42,
+  "dataset": "financial_fraud_detection_dataset.csv",
+  "training_row_count": 4000,
+  "training_fraud_count": 386,
+  "training_legitimate_count": 3614,
+  "test_row_count": 1000,
+  "test_fraud_count": 96,
+  "test_legitimate_count": 904,
+  "phase6_reference_metrics": {
+    "Accuracy": 0.748,
+    "Precision": 0.24172185430463577,
+    "Recall": 0.7604166666666666,
+    "F1": 0.36683417085427134,
+    "ROC_AUC": 0.7645879424778762,
+    "PR_AUC": 0.2620245745630227,
+    "TN": 675,
+    "FP": 229,
+    "FN": 23,
+    "TP": 73
+  },
+  "created_at_utc": "2026-09-12T11:12:24.883720+00:00",
+  "production_ready_claim": false,
+  "notes": "Phase 7 frozen pipeline. Dashboard and deployment are later work."
+}
