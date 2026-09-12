@@ -6,7 +6,7 @@ Detect fraudulent financial transactions with machine learning and present risk 
 
 ## Current phase
 
-**Phase 2 — Project scaffold, data validation, and reproducible foundation.**
+**Phase 3 — Exploratory data analysis.**
 
 ML training and dashboard implementation are planned for later phases.
 
@@ -20,38 +20,30 @@ Primary dataset: `data/raw/financial_fraud_detection_dataset.csv`
 
 ## Technology stack
 
-Phase 2 uses:
+Current stack:
 
 - Python
 - pandas
 - NumPy
+- Plotly
 - pytest
 
-Later phases may add scikit-learn, imbalanced-learn, XGBoost, Plotly, Streamlit, and joblib. Those packages are not required yet.
+Later phases may add scikit-learn, imbalanced-learn, XGBoost, Streamlit, and joblib.
 
 ## Project structure
 
 ```
 Financial_Fraud_Detection/
 ├── requirements_files/      # original reference materials (do not edit)
-├── data/
-│   ├── raw/                 # primary CSV used by the application
-│   └── processed/           # later phases
-├── notebooks/               # later EDA / experiments
-├── src/
-│   ├── data/                # loading and validation
-│   ├── features/            # later feature engineering
-│   ├── models/              # later training pipeline
-│   ├── evaluation/          # later metrics
-│   └── utils/               # paths and random seed
-├── models/
-├── reports/
-├── artifacts/
-├── dashboard/               # later Streamlit app
+├── data/raw/                # primary CSV used by the application
+├── notebooks/01_eda.ipynb   # Phase 3 EDA
+├── src/data/                # loading, validation, EDA helpers
+├── src/utils/               # paths and random seed
+├── reports/eda_summary.md
+├── artifacts/eda/           # Plotly HTML charts from EDA
 ├── tests/
 ├── requirements.txt
 ├── README.md
-├── .gitignore
 └── run_validation.py
 ```
 
@@ -63,15 +55,16 @@ From the project root:
 python run_validation.py
 ```
 
-The script loads the CSV, checks schema and data quality, prints a profile, and exits with a non-zero status if critical checks fail.
+## How to run EDA
 
-Expected success line:
+Open `notebooks/01_eda.ipynb` and run all cells from the project root (or from `notebooks/`; the first cell locates the project root).
 
-```text
-DATA VALIDATION PASSED
-```
+The notebook writes:
 
-Row counts, fraud counts, and fraud rate are calculated from the file. They are not hard-coded.
+- `reports/eda_summary.md`
+- `artifacts/eda/*.html`
+
+It does not modify `data/raw/financial_fraud_detection_dataset.csv`.
 
 ## How to run tests
 
@@ -79,11 +72,8 @@ Row counts, fraud counts, and fraud rate are calculated from the file. They are 
 pytest
 ```
 
-Tests check that the dataset exists, required columns and a binary target are present, transaction IDs are unique, and the fraud rate is between 0 and 1. They do not modify the dataset.
-
 ## Notes
 
 - `RANDOM_STATE = 42` in `src/utils/seeds.py` is the single seed for later modeling.
 - `Suspicious_Keyword` is retained as a data column and is not used as an ML feature in this phase.
 - No model performance is claimed. No models have been trained.
->>>>>>> 0267d8a (Initial commit: Financial Fraud Detection project)

@@ -6,7 +6,9 @@ __pycache__/
 venv/
 .env
 models/*.joblib
-artifacts/
+artifacts/*
+!artifacts/eda/
+!artifacts/eda/**
 data/processed/
 *.db
 .ipynb_checkpoints/
