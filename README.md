@@ -2,101 +2,142 @@
 
 ## Project objective
 
-Detect fraudulent financial transactions with machine learning and present risk analytics through an interactive Streamlit dashboard.
+Detect fraudulent financial transactions with a leakage-safe machine-learning pipeline and present risk analytics through an interactive Streamlit dashboard.
 
 ## Current phase
 
-**Phase 5 — Leakage-safe ML training pipelines.**
+**Phase 8 — Streamlit fraud detection dashboard.**
 
-ML training and dashboard implementation are planned for later phases.
+The production model, features, calibration, threshold, and raw dataset are frozen. The dashboard is an inference and analytics application only. It does not retrain.
 
 ## Dataset
 
 Primary dataset: `data/raw/financial_fraud_detection_dataset.csv`
 
-- Target column: `Fraudulent`
-- Application code loads this file through project-relative paths only
+- 5,000 rows, 482 frauds (9.64%)
+- Target column: `Fraudulent` (historical ground truth for analytics only)
+- Application code loads this file through project-relative paths
 - Original reference files under `requirements_files/` are not modified
+- Raw MD5: `9a4a90ce2e07a717b4289dc95a71663c`
 
-## Technology stack
+## How to install dependencies
 
-Current stack:
+From the project root:
 
-- Python, pandas, NumPy, Plotly, pytest
-- scikit-learn, imbalanced-learn, XGBoost, joblib
+```bash
+python -m pip install -r requirements.txt
+```
 
-Streamlit belongs to a later phase.
+## How to run the dashboard
+
+From the project root:
+
+```bash
+streamlit run dashboard/app.py
+```
+
+Open the local URL Streamlit prints (typically `http://localhost:8501`).
+
+## Dashboard pages
+
+1. **Overview** — KPI cards, fraud vs legitimate mix, amount distribution, category and international rates.
+2. **Fraud Analytics** — interactive historical fraud-rate charts with filters and sample sizes.
+3. **Model Performance** — frozen Phase 7 test metrics, confusion matrix, accuracy vs Always Legitimate baseline.
+4. **Transaction Prediction** — scores one transaction through `src.models.predict.predict_transaction`.
+5. **Risk Monitoring** — scores the historical file with the frozen pipeline, risk-band charts, table filters, CSV download.
+
+## Model information
+
+- Model: Logistic Regression + Class Weight
+- Calibration: sigmoid / 5-fold CV (`ensemble=False`)
+- Production artifact: `models/production/final_fraud_pipeline.joblib`
+- Production threshold: **0.10** (read from `models/production/model_metadata.json`)
+- Frozen test recall: 0.7604
+- Frozen test ROC-AUC: 0.7646
+- Frozen test precision: 0.2378
+- Frozen test F1: 0.3623
+
+The dashboard never fits preprocessing, calibration, or a new threshold.
+
+## Risk-score explanation
+
+`risk_score = predicted_probability × 100` (0–100).
+
+| Band | Score |
+| --- | --- |
+| Low Risk | 0–9 |
+| Medium Risk | 10–19 |
+| High Risk | 20–39 |
+| Critical Risk | 40–100 |
+
+A score at or above 10 (probability ≥ 0.10) is flagged for review. The risk score is a **model-generated risk indicator, not proof of fraud**. Flagged transactions should be reviewed.
+
+## Limitations
+
+- 96 frauds in the untouched test set: metric variance is real.
+- Precision is 23.78%: many flags are legitimate and create review workload.
+- 23 test frauds are missed (false negatives).
+- `Suspicious_Keyword`, `Customer_ID`, and `Transaction_ID` are not model inputs.
+- Accuracy is a poor headline metric on this 9.64% fraud-rate dataset.
+
+## Screenshot placeholders
+
+Add screenshots here after a local run:
+
+- `docs/screenshots/overview.png`
+- `docs/screenshots/fraud_analytics.png`
+- `docs/screenshots/model_performance.png`
+- `docs/screenshots/prediction.png`
+- `docs/screenshots/risk_monitoring.png`
 
 ## Project structure
 
 ```
 Financial_Fraud_Detection/
-├── requirements_files/      # original reference materials (do not edit)
-├── data/raw/                # primary CSV used by the application
-├── notebooks/01_eda.ipynb   # Phase 3 EDA
-├── src/data/                # loading, validation, EDA helpers
-├── src/utils/               # paths and random seed
-├── reports/eda_summary.md
-├── artifacts/eda/           # Plotly HTML charts from EDA
+├── dashboard/                 # Phase 8 Streamlit app
+│   ├── app.py
+│   ├── components.py
+│   ├── data_loader.py
+│   └── styles.py
+├── data/raw/                  # primary CSV (do not edit)
+├── models/baseline/           # Phase 5 candidates
+├── models/production/         # frozen Phase 7 artifact
+├── notebooks/01_eda.ipynb
+├── reports/                   # EDA, comparison, Phase 7 metrics
+├── src/data/
+├── src/features/
+├── src/models/                # training, scoring, predict.py
+├── src/evaluation/
 ├── tests/
-├── requirements.txt
-├── README.md
-└── run_validation.py
+├── run_validation.py
+├── run_training.py
+├── run_evaluation.py
+├── run_phase7.py
+└── requirements.txt
 ```
 
 ## How to validate the dataset
-
-From the project root:
 
 ```bash
 python run_validation.py
 ```
 
-## How to run EDA
-
-Open `notebooks/01_eda.ipynb` and run all cells from the project root (or from `notebooks/`; the first cell locates the project root).
-
-The notebook writes:
-
-- `reports/eda_summary.md`
-- `artifacts/eda/*.html`
-
-It does not modify `data/raw/financial_fraud_detection_dataset.csv`.
-
-## How to build features
-
-From the project root (or any later training/serving code):
-
-```python
-from src.data.loader import load_fraud_dataset
-from src.features.feature_engineering import build_features, extract_target
-
-df = load_fraud_dataset()
-X = build_features(df)
-y = extract_target(df)
-```
-
-Suspicious_Keyword, Customer_ID, Transaction_ID, Transaction_Date, and Fraudulent are excluded from X. Categorical columns are not one-hot encoded here (Phase 5 will fit encoders on training data only).
-
-## How to train candidate models
-
-From the project root:
-
-```bash
-python run_training.py
-```
-
-This fits preprocess + SMOTE or class-weight pipelines on the training fold only and writes `models/baseline/*.joblib`. No model is declared best.
-
 ## How to run tests
-
 
 ```bash
 pytest
 ```
 
+## Other commands
+
+```bash
+python run_training.py      # Phase 5 candidates (already saved)
+python run_evaluation.py    # Phase 6 comparison (already saved)
+python run_phase7.py        # Phase 7 production freeze (already saved)
+```
+
 ## Notes
 
-- `RANDOM_STATE = 42` in `src/utils/seeds.py` is the single seed for later modeling.
-- `Suspicious_Keyword` is retained as a data column and is not used as an ML feature in this phase.
-- No model is declared best in Phase 5. Comparison belongs to Phase 6.
+- `RANDOM_STATE = 42` is the project seed.
+- Do not modify `data/raw/financial_fraud_detection_dataset.csv`.
+- Do not overwrite `models/production/final_fraud_pipeline.joblib` from the dashboard.
