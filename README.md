@@ -6,7 +6,7 @@ Detect fraudulent financial transactions with machine learning and present risk 
 
 ## Current phase
 
-**Phase 3 — Exploratory data analysis.**
+**Phase 4 — Leakage-safe feature engineering.**
 
 ML training and dashboard implementation are planned for later phases.
 
@@ -66,7 +66,23 @@ The notebook writes:
 
 It does not modify `data/raw/financial_fraud_detection_dataset.csv`.
 
+## How to build features
+
+From the project root (or any later training/serving code):
+
+```python
+from src.data.loader import load_fraud_dataset
+from src.features.feature_engineering import build_features, extract_target
+
+df = load_fraud_dataset()
+X = build_features(df)
+y = extract_target(df)
+```
+
+Suspicious_Keyword, Customer_ID, Transaction_ID, Transaction_Date, and Fraudulent are excluded from X. Categorical columns are not one-hot encoded here (Phase 5 will fit encoders on training data only).
+
 ## How to run tests
+
 
 ```bash
 pytest

@@ -9,6 +9,7 @@ models/*.joblib
 artifacts/*
 !artifacts/eda/
 !artifacts/eda/**
+!artifacts/feature_preview.csv
 data/processed/
 *.db
 .ipynb_checkpoints/
