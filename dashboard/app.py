@@ -213,7 +213,7 @@ def page_analytics(raw: pd.DataFrame) -> None:
     show_chart(fig)
 
 
-def page_performance(metrics: dict) -> None:
+def page_performance(metrics: dict, threshold: float) -> None:
     st.title("Model performance")
     callout(
         "<strong>Accuracy alone is not sufficient for fraud detection</strong> because the "
@@ -234,7 +234,7 @@ def page_performance(metrics: dict) -> None:
     tn, fp, fn, tp = (int(metrics["TN"]), int(metrics["FP"]), int(metrics["FN"]), int(metrics["TP"]))
     c1, c2 = st.columns(2)
     with c1:
-        show_chart(confusion_heatmap(tn, fp, fn, tp))
+        show_chart(confusion_heatmap(tn, fp, fn, tp, threshold))
         st.caption("False negatives are missed fraud. False positives are legitimate transactions flagged for review.")
     with c2:
         show_chart(
@@ -442,7 +442,7 @@ def main() -> None:
         raw = cached_raw()
         pipeline = cached_pipeline()
         scored = cached_scored()
-    except (FileNotFoundError, ValueError, TypeError) as exc:
+    except Exception as exc:
         friendly_error(exc)
         st.stop()
         return
@@ -454,12 +454,14 @@ def main() -> None:
         elif page == "Fraud Analytics":
             page_analytics(raw)
         elif page == "Model Performance":
-            page_performance(metrics)
+            page_performance(metrics, float(metadata["production_threshold"]))
         elif page == "Transaction Prediction":
             page_predict(raw, pipeline, metadata)
         else:
             page_monitor(scored, metadata)
     except (ValidationError, ValueError, FileNotFoundError, TypeError, KeyError) as exc:
+        friendly_error(exc)
+    except Exception as exc:
         friendly_error(exc)
 
 

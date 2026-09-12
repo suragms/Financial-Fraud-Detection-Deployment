@@ -7,6 +7,7 @@ preprocessing, calibration, or a new threshold.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -20,7 +21,6 @@ from src.models.predict import (
     load_production_pipeline,
     predict_records,
 )
-from src.models.scoring import VALID_RISK_BAND_NAMES
 from src.utils.paths import RAW_DATASET_PATH, REPORTS_DIR
 
 EXPECTED_RAW_DATASET_MD5 = "9a4a90ce2e07a717b4289dc95a71663c"
@@ -162,3 +162,14 @@ def fraud_rate_table(frame: pd.DataFrame, column: str, min_n: int = 1) -> pd.Dat
 
 def dataset_hash() -> str:
     return raw_dataset_md5()
+
+
+def export_scored_csv(scored: pd.DataFrame, path: Path | str) -> Path:
+    """Write scored rows to a new file. Never writes the raw dataset."""
+    target = Path(path)
+    if target.resolve() == RAW_DATASET_PATH.resolve():
+        raise ValueError("Refusing to overwrite the raw dataset.")
+    columns = [column for column in DISPLAY_COLUMNS if column in scored.columns]
+    target.parent.mkdir(parents=True, exist_ok=True)
+    scored.loc[:, columns].to_csv(target, index=False)
+    return target

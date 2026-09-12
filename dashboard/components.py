@@ -67,7 +67,7 @@ def histogram(series: pd.Series, title: str, x_title: str, color: str = "#22d3ee
     return fig
 
 
-def confusion_heatmap(tn: int, fp: int, fn: int, tp: int) -> go.Figure:
+def confusion_heatmap(tn: int, fp: int, fn: int, tp: int, threshold: float) -> go.Figure:
     fig = go.Figure(
         go.Heatmap(
             z=[[tn, fp], [fn, tp]],
@@ -79,7 +79,10 @@ def confusion_heatmap(tn: int, fp: int, fn: int, tp: int) -> go.Figure:
             showscale=False,
         )
     )
-    fig.update_layout(title="Untouched test-set confusion matrix (threshold = 0.10)", height=420)
+    fig.update_layout(
+        title=f"Untouched test-set confusion matrix (threshold = {threshold:.2f})",
+        height=420,
+    )
     return fig
 
 

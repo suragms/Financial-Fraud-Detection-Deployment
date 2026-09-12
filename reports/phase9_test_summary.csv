@@ -1,0 +1,13 @@
+test_area,status,details
+project_integrity,PASS,"Required source, model, dashboard, report, and test paths exist."
+dataset_integrity,PASS,"5,000 rows; hash 9a4a90ce2e07a717b4289dc95a71663c."
+model_integrity,PASS,Logistic Regression + Class Weight; threshold 0.1; hash 5d08c124ddbb452f7a93f6982d02240a.
+inference,PASS,predict_transaction/predict_records; invalid inputs raise ValidationError.
+risk_scoring,PASS,risk_score = probability * 100; flag at probability >= 0.10.
+dashboard,PASS,Five pages import and AppTest smoke without retraining.
+leakage_audit,PASS,Forbidden columns excluded from model inputs; ground truth display-only.
+test_set_protection,PASS,Dashboard performs inference only; no fit/calibrate/threshold search.
+performance,PASS,model_load=0.001s; score_10=0.042s; score_5000=0.031s.
+csv_export,PASS,"10-row and 5,000-row exports; raw CSV not overwritten."
+reproducibility,PASS,Repeated inference identical; frozen hashes unchanged.
+pytest,PASS,total=110 passed=110 failed=0 skipped=0 warnings=0

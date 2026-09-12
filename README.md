@@ -6,9 +6,38 @@ Detect fraudulent financial transactions with a leakage-safe machine-learning pi
 
 ## Current phase
 
-**Phase 8 — Streamlit fraud detection dashboard.**
+**Phase 9 — Full QA, integration testing, and delivery hardening.**
 
-The production model, features, calibration, threshold, and raw dataset are frozen. The dashboard is an inference and analytics application only. It does not retrain.
+Phases 1–8 are complete. The production model, features, calibration, threshold (`0.10`), and raw dataset are frozen. Phase 9 audits integrity, inference, leakage, and the dashboard. It does not retrain.
+
+## Architecture
+
+1. **Data** — `data/raw/financial_fraud_detection_dataset.csv` is loaded read-only.
+2. **Features** — `src/features/feature_engineering.py` builds 18 model columns. IDs, `Suspicious_Keyword`, raw `Transaction_Date`, and `Fraudulent` are excluded from X.
+3. **Training (frozen)** — Phase 5 trained candidate pipelines; Phase 6 compared them on an untouched test fold; Phase 7 calibrated and chose threshold **0.10** on training data only.
+4. **Inference** — `src/models/predict.py` loads `models/production/final_fraud_pipeline.joblib`.
+5. **Dashboard** — Streamlit application layer. It scores transactions; it does not fit models.
+
+## Official production test metrics (Phase 7)
+
+These are the frozen one-shot results on the untouched 1,000-row test set after calibration and threshold freeze. They are **not** the Phase 6 default-threshold candidate scores.
+
+| Metric | Value |
+| --- | --- |
+| Accuracy | 0.7430 |
+| Precision | 0.2378 |
+| Recall | 0.7604 |
+| F1 | 0.3623 |
+| ROC-AUC | 0.7646 |
+| PR-AUC | 0.2620 |
+| TN / FP / FN / TP | 670 / 234 / 23 / 73 |
+| Threshold | 0.10 |
+
+Phase 6 default-threshold metrics (Accuracy 0.7480, Precision 0.2417, F1 0.3668, TP=73, FP=229) remain in `reports/model_comparison.md` as historical comparison only.
+
+## Requirements
+
+See `requirements.txt`: pandas, numpy, plotly, pytest, scikit-learn, imbalanced-learn, joblib, xgboost, streamlit.
 
 ## Dataset
 
@@ -116,25 +145,19 @@ Financial_Fraud_Detection/
 └── requirements.txt
 ```
 
-## How to validate the dataset
+## How to train and evaluate (already completed)
+
+These commands recreate earlier phases. They are not required to run the dashboard.
 
 ```bash
-python run_validation.py
+python run_validation.py     # schema and data-quality checks
+python run_training.py       # Phase 5 candidate artifacts
+python run_evaluation.py     # Phase 6 comparison on untouched test fold
+python run_phase7.py         # Phase 7 calibration, threshold, production artifact
+pytest -q                    # full test suite including Phase 9 QA
 ```
 
-## How to run tests
-
-```bash
-pytest
-```
-
-## Other commands
-
-```bash
-python run_training.py      # Phase 5 candidates (already saved)
-python run_evaluation.py    # Phase 6 comparison (already saved)
-python run_phase7.py        # Phase 7 production freeze (already saved)
-```
+Do not use the dashboard or `predict.py` to retrain, calibrate, or retune the threshold.
 
 ## Notes
 

@@ -28,6 +28,29 @@ PRODUCTION_METADATA_PATH = PRODUCTION_MODELS_DIR / "model_metadata.json"
 
 _FORBIDDEN_MODEL_COLUMNS = set(EXCLUDED_FEATURES)
 
+_RAW_NUMERIC_COLUMNS = (
+    "Transaction_Amount",
+    "Average_Spend",
+    "Previous_Transactions",
+    "Account_Age_Days",
+)
+
+
+def _validate_raw_inference_values(frame: pd.DataFrame) -> None:
+    """Reject invalid raw values with user-facing errors before scoring."""
+    for column in _RAW_NUMERIC_COLUMNS:
+        numeric = pd.to_numeric(frame[column], errors="coerce")
+        values = numeric.to_numpy(dtype="float64")
+        if numeric.isna().any() or not np.isfinite(values).all():
+            raise ValidationError(
+                f"{column} must be a finite number. Missing, text, NaN, or infinite values are not allowed."
+            )
+        if (values < 0).any():
+            raise ValidationError(f"{column} cannot be negative.")
+    international = pd.to_numeric(frame["Is_International"], errors="coerce")
+    if international.isna().any() or not set(international.dropna().unique()).issubset({0, 1}):
+        raise ValidationError("Is_International must be 0 (domestic) or 1 (international).")
+
 
 def load_production_pipeline(path: Path | None = None) -> FraudRiskPipeline:
     """Load the saved production wrapper. Does not fit or calibrate."""
@@ -78,7 +101,8 @@ def prepare_features(record: pd.DataFrame | pd.Series | dict[str, Any]) -> pd.Da
         return features
 
     if raw_ready:
-        return build_features(frame)
+        _validate_raw_inference_values(frame)
+        return build_features(frame.loc[:, list(FEATURE_INPUT_COLUMNS)])
 
     missing_raw = [column for column in FEATURE_INPUT_COLUMNS if column not in frame.columns]
     missing_model = [column for column in MODEL_FEATURES if column not in frame.columns]
