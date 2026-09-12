@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+.env
+models/*.joblib
+artifacts/
+data/processed/
+*.db
+.ipynb_checkpoints/
+*.egg-info/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
