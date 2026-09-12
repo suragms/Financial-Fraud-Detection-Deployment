@@ -10,6 +10,8 @@ artifacts/*
 !artifacts/eda/
 !artifacts/eda/**
 !artifacts/feature_preview.csv
+!artifacts/model_evaluation/
+!artifacts/model_evaluation/**
 data/processed/
 *.db
 .ipynb_checkpoints/

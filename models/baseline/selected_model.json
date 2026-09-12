@@ -1,0 +1,26 @@
+{
+  "status": "selected candidate",
+  "model_name": "Logistic Regression",
+  "strategy": "Class Weight",
+  "artifact_key": "logistic_regression_class_weight",
+  "artifact_path": "models/baseline/logistic_regression_class_weight.joblib",
+  "selection_reason": "Logistic Regression (Class Weight) is the selected candidate because it has the strongest practical F1 (0.3668) at the default threshold, with precision 0.2417 and recall 0.7604. On the 1,000-row test set it yields TP=73, FN=23, FP=229, TN=675. PR-AUC=0.2620 and ROC-AUC=0.7646. The Always Legitimate dummy reaches accuracy 0.9040 with recall 0, which is why accuracy was not used to pick a winner. Highest PR-AUC is Logistic Regression (SMOTE) at 0.2681. If two models were within 0.01 F1, the simpler family / class-weight pipeline was preferred. Threshold calibration is deferred to Phase 7.",
+  "test_metrics": {
+    "Accuracy": 0.748,
+    "Precision": 0.24172185430463577,
+    "Recall": 0.7604166666666666,
+    "F1": 0.36683417085427134,
+    "ROC_AUC": 0.7645879424778762,
+    "PR_AUC": 0.2620245745630227,
+    "TN": 675,
+    "FP": 229,
+    "FN": 23,
+    "TP": 73
+  },
+  "random_state": 42,
+  "dataset": "financial_fraud_detection_dataset.csv",
+  "feature_count": 18,
+  "threshold": "default (0.5 / model default). Production threshold is Phase 7.",
+  "production_ready": false,
+  "role": "selected candidate"
+}
