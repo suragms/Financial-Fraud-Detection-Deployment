@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 venv/
 .env
+.vercel/
 models/*.joblib
 artifacts/*
 !artifacts/eda/

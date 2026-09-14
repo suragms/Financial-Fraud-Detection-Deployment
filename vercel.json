@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/styles.css", "destination": "/api/index.py" },
+    { "source": "/app.js", "destination": "/api/index.py" },
+    { "source": "/", "destination": "/api/index.py" }
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30,
+      "includeFiles": "{models/production/**,src/**,web/**,run_validation.py,data/processed/**}",
+      "excludeFiles": "{requirements_files/**,artifacts/**,notebooks/**,tests/**,dashboard/**,data/raw/**,.venv/**,venv/**}"
+    }
+  }
+}

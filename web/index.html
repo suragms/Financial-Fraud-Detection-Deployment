@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Financial Fraud Detection — Foresight</title>
+    <meta
+      name="description"
+      content="Machine learning based fraud risk assessment. Internship prototype — not proof of fraud."
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <p class="kicker">Project Foresight</p>
+        <h1>Financial Fraud Detection</h1>
+        <p class="tagline">Machine Learning Based Fraud Risk Assessment</p>
+        <p class="lede">
+          Score a single transaction with the frozen production pipeline.
+          Logistic Regression with class weighting, sigmoid calibration, and a
+          review threshold loaded from model metadata. This is an internship
+          prototype, not a certified banking system.
+        </p>
+      </header>
+
+      <aside class="disclaimer" role="note">
+        Risk score is a model-generated indicator and is not proof of fraud.
+        A flagged result means the transaction should be reviewed by a person.
+      </aside>
+
+      <section class="model-strip" aria-label="Model information">
+        <div>
+          <span class="label">Model</span>
+          <strong id="model-name">Logistic Regression + Class Weight</strong>
+        </div>
+        <div>
+          <span class="label">Calibration</span>
+          <strong id="calibration-name">Sigmoid</strong>
+        </div>
+        <div>
+          <span class="label">Threshold</span>
+          <strong id="threshold-display">10%</strong>
+        </div>
+        <div>
+          <span class="label">Recall</span>
+          <strong>76.04%</strong>
+        </div>
+        <div>
+          <span class="label">Precision</span>
+          <strong>23.78%</strong>
+        </div>
+        <div>
+          <span class="label">ROC-AUC</span>
+          <strong>76.46%</strong>
+        </div>
+      </section>
+
+      <main class="layout">
+        <section class="panel" aria-labelledby="form-title">
+          <div class="panel-head">
+            <h2 id="form-title">Transaction details</h2>
+            <p>Only production inference fields are sent. Identifiers, the label, and Suspicious_Keyword are never submitted.</p>
+          </div>
+          <div class="example-row">
+            <button type="button" class="ghost" id="fill-low">Example: likely low risk</button>
+            <button type="button" class="ghost" id="fill-high">Example: likely review</button>
+          </div>
+          <form id="predict-form" novalidate>
+            <div class="grid">
+              <label>
+                Transaction amount
+                <input id="Transaction_Amount" name="Transaction_Amount" type="number" min="0" step="0.01" required value="50" />
+              </label>
+              <label>
+                Average spend
+                <input id="Average_Spend" name="Average_Spend" type="number" min="0" step="0.01" required value="95" />
+              </label>
+              <label>
+                Previous transactions
+                <input id="Previous_Transactions" name="Previous_Transactions" type="number" min="0" step="1" required value="20" />
+              </label>
+              <label>
+                Account age (days)
+                <input id="Account_Age_Days" name="Account_Age_Days" type="number" min="0" step="1" required value="800" />
+              </label>
+              <label>
+                Transaction date
+                <input id="Transaction_Date_Input" name="Transaction_Date_Input" type="datetime-local" required />
+              </label>
+              <label>
+                International transaction
+                <select id="Is_International" name="Is_International" required>
+                  <option value="0" selected>Domestic (0)</option>
+                  <option value="1">International (1)</option>
+                </select>
+              </label>
+              <label>
+                Merchant category
+                <select id="Merchant_Category" name="Merchant_Category" required>
+                  <option>Electronics</option>
+                  <option>Entertainment</option>
+                  <option>Fashion</option>
+                  <option selected>Food</option>
+                  <option>Grocery</option>
+                  <option>Health</option>
+                  <option>Travel</option>
+                  <option>Utilities</option>
+                </select>
+              </label>
+              <label>
+                Payment method
+                <select id="Payment_Method" name="Payment_Method" required>
+                  <option>Credit Card</option>
+                  <option selected>Debit Card</option>
+                  <option>NetBanking</option>
+                  <option>PayPal</option>
+                  <option>UPI</option>
+                </select>
+              </label>
+              <label>
+                Device type
+                <select id="Device_Type" name="Device_Type" required>
+                  <option>Desktop</option>
+                  <option selected>Mobile</option>
+                  <option>POS</option>
+                </select>
+              </label>
+              <label>
+                Location
+                <select id="Location" name="Location" required>
+                  <option>Bengaluru</option>
+                  <option>Chennai</option>
+                  <option>Delhi</option>
+                  <option>Hyderabad</option>
+                  <option>Kolkata</option>
+                  <option selected>Mumbai</option>
+                  <option>Pune</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="primary" id="submit-btn">Assess fraud risk</button>
+          </form>
+        </section>
+
+        <section class="panel result-panel" aria-labelledby="result-title">
+          <div class="panel-head">
+            <h2 id="result-title">Risk assessment</h2>
+            <p id="result-caption">Submit a transaction to see probability, score, band, and review decision.</p>
+          </div>
+          <p class="status-msg" id="status-msg" hidden></p>
+          <div id="result-empty" class="empty-state">Waiting for a score.</div>
+          <div id="result-body" hidden>
+            <div class="decision" id="decision-chip">—</div>
+            <dl class="metrics">
+              <div>
+                <dt>Fraud probability</dt>
+                <dd id="out-probability">—</dd>
+              </div>
+              <div>
+                <dt>Risk score</dt>
+                <dd id="out-score">—</dd>
+              </div>
+              <div>
+                <dt>Risk band</dt>
+                <dd id="out-band">—</dd>
+              </div>
+              <div>
+                <dt>Prediction</dt>
+                <dd id="out-label">—</dd>
+              </div>
+              <div>
+                <dt>Review threshold</dt>
+                <dd id="out-threshold">—</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        Frozen artifact <code>models/production/final_fraud_pipeline.joblib</code>.
+        Local Streamlit demo remains <code>streamlit run dashboard/app.py</code>.
+      </footer>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>

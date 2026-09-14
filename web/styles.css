@@ -1,0 +1,267 @@
+:root {
+  --bg: #07111c;
+  --bg-elev: #0d1a29;
+  --bg-card: #112133;
+  --line: rgba(148, 197, 255, 0.14);
+  --text: #e8f1fb;
+  --muted: #93a6bd;
+  --accent: #3ee0c2;
+  --accent-2: #7cb8ff;
+  --warn: #f3c15b;
+  --danger: #fb7185;
+  --ok: #34d399;
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  --radius: 18px;
+  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(62, 224, 194, 0.12), transparent 50%),
+    radial-gradient(900px 400px at 100% 0%, rgba(124, 184, 255, 0.12), transparent 45%),
+    var(--bg);
+  color: var(--text);
+}
+
+body {
+  line-height: 1.5;
+}
+
+code {
+  font-family: Consolas, "Courier New", monospace;
+  color: var(--accent-2);
+}
+
+.page-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 36px 0 56px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  letter-spacing: -0.03em;
+}
+
+.kicker,
+.label {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+.tagline {
+  margin: 0 0 14px;
+  color: var(--accent-2);
+  font-size: 1.05rem;
+}
+
+.lede {
+  max-width: 720px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.disclaimer {
+  margin: 28px 0 22px;
+  padding: 14px 18px;
+  border: 1px solid rgba(243, 193, 91, 0.35);
+  background: rgba(243, 193, 91, 0.08);
+  color: #fbe7b0;
+  border-radius: 12px;
+}
+
+.model-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.model-strip div {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.model-strip .label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.model-strip strong {
+  font-size: 0.95rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.panel-head h2 {
+  margin: 0 0 6px;
+  font-size: 1.25rem;
+}
+
+.panel-head p,
+.empty-state,
+footer {
+  color: var(--muted);
+}
+
+.example-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  background: #0b1726;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid rgba(62, 224, 194, 0.45);
+  border-color: var(--accent);
+}
+
+.primary,
+.ghost {
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+}
+
+.primary {
+  margin-top: 18px;
+  width: 100%;
+  background: linear-gradient(90deg, #2fddb8, #5aa8ff);
+  color: #062018;
+  font-weight: 700;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line);
+}
+
+.decision {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+}
+
+.decision.flag {
+  background: rgba(251, 113, 133, 0.16);
+  color: var(--danger);
+}
+
+.decision.clear {
+  background: rgba(52, 211, 153, 0.14);
+  color: var(--ok);
+}
+
+.metrics {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.metrics div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.metrics dt {
+  color: var(--muted);
+}
+
+.metrics dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.status-msg {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(251, 113, 133, 0.12);
+  color: #fecdd3;
+}
+
+.empty-state {
+  padding: 28px 8px;
+}
+
+footer {
+  margin-top: 28px;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 900px) {
+  .model-strip,
+  .layout,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
