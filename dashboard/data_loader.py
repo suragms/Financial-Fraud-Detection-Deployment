@@ -161,6 +161,10 @@ def fraud_rate_table(frame: pd.DataFrame, column: str, min_n: int = 1) -> pd.Dat
 
 
 def dataset_hash() -> str:
+    if not RAW_DATASET_PATH.exists():
+        raise FileNotFoundError(
+            "The historical dataset was not found at data/raw/financial_fraud_detection_dataset.csv."
+        )
     return raw_dataset_md5()
 
 

@@ -5,8 +5,12 @@ __pycache__/
 .venv/
 venv/
 .env
+.env.*
+*.log
 .vercel/
 models/*.joblib
+!models/production/
+!models/production/**
 artifacts/*
 !artifacts/eda/
 !artifacts/eda/**

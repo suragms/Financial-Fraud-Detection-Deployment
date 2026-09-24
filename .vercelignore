@@ -50,6 +50,8 @@ pytest.ini
 # Non-production requirements
 requirements-dev.txt
 requirements-training.txt
+requirements-streamlit.txt
+.streamlit/
 
 # Documentation / Meta
 README.md

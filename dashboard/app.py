@@ -327,6 +327,9 @@ def page_predict(raw: pd.DataFrame, pipeline, metadata: dict) -> None:
     except (ValidationError, ValueError, FileNotFoundError, TypeError) as exc:
         friendly_error(exc)
         return
+    except Exception as exc:
+        friendly_error(exc)
+        return
     prediction_panel(result, threshold)
 
 
