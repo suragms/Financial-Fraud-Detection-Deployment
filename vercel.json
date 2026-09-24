@@ -4,14 +4,18 @@
     { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/health", "destination": "/api/index.py" },
     { "source": "/predict", "destination": "/api/index.py" },
-    { "source": "/styles.css", "destination": "/api/index.py" },
-    { "source": "/app.js", "destination": "/api/index.py" },
-    { "source": "/", "destination": "/api/index.py" }
+    { "source": "/styles.css", "destination": "/web/styles.css" },
+    { "source": "/app.js", "destination": "/web/app.js" },
+    { "source": "/", "destination": "/web/index.html" }
   ],
   "functions": {
     "api/index.py": {
       "maxDuration": 30,
-      "includeFiles": "{models/production/**,src/**,web/**}"
+      "includeFiles": [
+        "models/production/**",
+        "src/**",
+        "web/**"
+      ]
     }
   }
 }

@@ -9,7 +9,9 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
 import sys
+import traceback
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
@@ -23,20 +25,67 @@ logger = logging.getLogger("fraud_api")
 FILE_PATH = Path(__file__).resolve()
 ROOT = FILE_PATH.parents[1] if FILE_PATH.parent.name == "api" else FILE_PATH.parent
 
-for candidate_path in (ROOT, Path.cwd(), Path("/var/task")):
-    if candidate_path.exists() and str(candidate_path) not in sys.path:
-        sys.path.insert(0, str(candidate_path))
+for candidate_path in [
+    str(ROOT),
+    str(ROOT.parent),
+    str(FILE_PATH.parent),
+    str(Path.cwd()),
+    "/var/task",
+    "/var/task/api",
+]:
+    if candidate_path not in sys.path:
+        sys.path.insert(0, candidate_path)
 
 from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.exceptions import HTTPException
 
-from src.data.loader import DATE_FORMAT, ValidationError
-from src.features.feature_engineering import FEATURE_INPUT_COLUMNS
-from src.models.predict import (
-    PRODUCTION_METADATA_PATH,
-    load_production_pipeline,
-    predict_transaction,
-)
+app = Flask(__name__)
+handler = app  # Explicit alias for serverless runtime bridges
+
+# Safe deferred import of internal modules to capture any environment/path errors
+_BOOT_ERROR: dict[str, Any] | None = None
+try:
+    from src.data.loader import DATE_FORMAT, ValidationError
+    from src.features.feature_engineering import FEATURE_INPUT_COLUMNS
+    from src.models.predict import (
+        PRODUCTION_METADATA_PATH,
+        load_production_pipeline,
+        predict_transaction,
+    )
+except Exception as _exc:
+    _BOOT_ERROR = {
+        "error_type": type(_exc).__name__,
+        "error_message": str(_exc),
+        "traceback": traceback.format_exc(),
+        "sys_path": list(sys.path),
+        "cwd": os.getcwd(),
+        "var_task_exists": os.path.exists("/var/task"),
+        "var_task_contents": os.listdir("/var/task") if os.path.exists("/var/task") else [],
+        "root": str(ROOT),
+        "root_contents": os.listdir(str(ROOT)) if ROOT.exists() else [],
+    }
+    logger.exception("FATAL: Failed to import project modules during initialization: %s", _exc)
+    DATE_FORMAT = "%d-%m-%Y %H:%M"
+    ValidationError = ValueError
+    FEATURE_INPUT_COLUMNS = (
+        "Transaction_Date",
+        "Transaction_Amount",
+        "Average_Spend",
+        "Previous_Transactions",
+        "Account_Age_Days",
+        "Is_International",
+        "Merchant_Category",
+        "Payment_Method",
+        "Device_Type",
+        "Location",
+    )
+    PRODUCTION_METADATA_PATH = ROOT / "models" / "production" / "model_metadata.json"
+
+    def load_production_pipeline(*args, **kwargs):
+        raise RuntimeError(f"Model failed to initialize: {_BOOT_ERROR}")
+
+    def predict_transaction(*args, **kwargs):
+        raise RuntimeError(f"Model failed to initialize: {_BOOT_ERROR}")
 
 WEB_DIR = ROOT / "web"
 
@@ -94,9 +143,6 @@ FIELD_LABELS = {
     "Device_Type": "device type",
     "Location": "location",
 }
-
-app = Flask(__name__)
-handler = app  # Explicit alias for serverless runtime bridges
 
 
 class ApiError(Exception):
@@ -342,18 +388,39 @@ def _handle_unexpected(exc):
 @app.get("/api/health")
 @app.get("/health")
 def health():
-    body = {
-        "status": "ok",
-        "model": _public_model_name(),
-        "threshold": _public_threshold(),
-        "calibration": _public_calibration(),
-    }
-    return jsonify(body), 200
+    if _BOOT_ERROR is not None:
+        logger.error("Health check failed due to startup error: %s", _BOOT_ERROR)
+        return jsonify({
+            "status": "error",
+            "error": "Model initialization failed",
+            "debug": _BOOT_ERROR,
+        }), 500
+    try:
+        body = {
+            "status": "ok",
+            "model": _public_model_name(),
+            "threshold": _public_threshold(),
+            "calibration": _public_calibration(),
+        }
+        return jsonify(body), 200
+    except Exception as exc:
+        logger.exception("Health check failed: %s", exc)
+        return jsonify({
+            "status": "error",
+            "error": "Model initialization failed",
+            "details": str(exc),
+        }), 500
 
 
 @app.post("/api/predict")
 @app.post("/predict")
 def predict():
+    if _BOOT_ERROR is not None:
+        logger.error("Prediction failed due to startup error: %s", _BOOT_ERROR)
+        return jsonify({
+            "error": "Model initialization failed",
+            "details": _BOOT_ERROR.get("error_message"),
+        }), 500
     payload = request.get_json(silent=True)
     if payload is None:
         raise ApiError("Request body must be a JSON object", 400)
