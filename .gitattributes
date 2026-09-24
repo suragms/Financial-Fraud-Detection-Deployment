@@ -1,0 +1,2 @@
+# Maintain consistent line endings for dataset files across platforms
+*.csv text eol=crlf

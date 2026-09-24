@@ -32,6 +32,7 @@ from dashboard.components import (
 )
 from dashboard.data_loader import (
     EXPECTED_RAW_DATASET_MD5,
+    VALID_RAW_DATASET_MD5S,
     PHASE6_DUMMY_ACCURACY,
     PHASE6_DUMMY_RECALL,
     category_options,
@@ -437,7 +438,7 @@ def main() -> None:
     inject_styles()
     try:
         digest = dataset_hash()
-        if digest != EXPECTED_RAW_DATASET_MD5:
+        if digest not in VALID_RAW_DATASET_MD5S and digest != EXPECTED_RAW_DATASET_MD5:
             st.error("The raw dataset hash has changed. The dashboard will not continue.")
             return
         metadata = cached_metadata()
