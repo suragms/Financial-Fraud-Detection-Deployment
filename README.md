@@ -1,5 +1,9 @@
 # Financial Fraud Detection & Risk Analytics System Using Machine Learning with an Interactive Streamlit Dashboard
 
+> **Author:** Hi, I'm Surag. This is my end-to-end Financial Fraud Detection & Risk Analytics system.
+> 
+> 🌐 **Live Web Application:** [https://financial-fraud-detection-sigma.vercel.app](https://financial-fraud-detection-sigma.vercel.app)
+
 Internship / prototype project (**Project Foresight**). This is a machine-learning **fraud risk** system. It is not a certified banking production deployment and not a guarantee of fraud detection.
 
 ## Overview
@@ -152,6 +156,8 @@ streamlit run dashboard/app.py
 Do not run training or Phase 7 freeze scripts to “improve” viva numbers.
 
 ## Web demo (Vercel)
+
+🌐 **Live Production Deployment:** [https://financial-fraud-detection-sigma.vercel.app](https://financial-fraud-detection-sigma.vercel.app)
 
 The frozen pipeline is also served as a same-origin Flask API plus a static form. Streamlit is **not** used on Vercel.
 
