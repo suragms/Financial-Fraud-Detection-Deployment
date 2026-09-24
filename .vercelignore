@@ -18,15 +18,15 @@ env
 # Jupyter notebooks and checkpoints
 .ipynb_checkpoints
 *.ipynb
-notebooks
+/notebooks/
 
 # Tests and configs
-tests
+/tests/
 pytest.ini
 
-# Data and large datasets
-data
-datasets
+# Data and large datasets (anchored to root so src/data is not matched)
+/data/
+/datasets/
 *.csv
 *.xlsx
 *.parquet
@@ -34,18 +34,18 @@ datasets
 *.rar
 *.pbix
 *.pdf
-requirements_files
+/requirements_files/
 
 # Non-production application code and artifacts
-dashboard
-artifacts
-reports
-models/baseline
-run_training.py
-run_evaluation.py
-run_phase7.py
-run_phase9.py
-run_validation.py
+/dashboard/
+/artifacts/
+/reports/
+/models/baseline/
+/run_training.py
+/run_evaluation.py
+/run_phase7.py
+/run_phase9.py
+/run_validation.py
 
 # Non-production requirements
 requirements-dev.txt
@@ -54,3 +54,13 @@ requirements-training.txt
 # Documentation / Meta
 README.md
 LICENSE
+
+# Explicit whitelisting - NEVER ignore production runtime code/models
+!/src/
+!/src/**
+!/models/production/
+!/models/production/**
+!/web/
+!/web/**
+!/api/
+!/api/**
