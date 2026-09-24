@@ -1,0 +1,5 @@
+-r requirements.txt
+xgboost>=2.0
+streamlit>=1.32
+plotly>=5.0
+pytest>=8.0

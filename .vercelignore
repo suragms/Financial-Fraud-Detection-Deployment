@@ -1,0 +1,56 @@
+# Version control and CI
+.git
+.github
+
+# Python caches and environments
+__pycache__
+*.py[cod]
+*$py.class
+.pytest_cache
+.python-version
+.venv
+venv
+ENV
+env
+.env
+.env.*
+
+# Jupyter notebooks and checkpoints
+.ipynb_checkpoints
+*.ipynb
+notebooks
+
+# Tests and configs
+tests
+pytest.ini
+
+# Data and large datasets
+data
+datasets
+*.csv
+*.xlsx
+*.parquet
+*.zip
+*.rar
+*.pbix
+*.pdf
+requirements_files
+
+# Non-production application code and artifacts
+dashboard
+artifacts
+reports
+models/baseline
+run_training.py
+run_evaluation.py
+run_phase7.py
+run_phase9.py
+run_validation.py
+
+# Non-production requirements
+requirements-dev.txt
+requirements-training.txt
+
+# Documentation / Meta
+README.md
+LICENSE

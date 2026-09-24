@@ -16,13 +16,14 @@ def find_project_root(start: Path | None = None) -> Path:
         current = current.parent
 
     for candidate in [current, *current.parents]:
-        if all((candidate / marker).exists() for marker in _MARKERS):
+        if (candidate / "src").exists() and (
+            (candidate / "models").exists()
+            or (candidate / "api").exists()
+            or (candidate / "run_validation.py").exists()
+        ):
             return candidate
 
-    raise FileNotFoundError(
-        "Could not locate the project root. Expected a directory containing "
-        "run_validation.py, src/, and data/."
-    )
+    return Path(__file__).resolve().parents[2]
 
 
 PROJECT_ROOT = find_project_root()

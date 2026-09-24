@@ -32,7 +32,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, RobustScaler
 from sklearn.tree import DecisionTreeClassifier
-from xgboost import XGBClassifier
+
 
 from src.data.loader import TARGET_COLUMN, load_fraud_dataset
 from src.features.feature_engineering import (
@@ -172,7 +172,14 @@ def _random_forest(*, class_weight: str | None = None) -> RandomForestClassifier
     )
 
 
-def _xgboost(*, scale_pos_weight: float = 1.0) -> XGBClassifier:
+def _xgboost(*, scale_pos_weight: float = 1.0):
+    try:
+        from xgboost import XGBClassifier
+    except ImportError as exc:
+        raise ImportError(
+            "xgboost is required to build the XGBoost baseline candidate model. "
+            "Install it via `pip install -r requirements-training.txt` or `pip install xgboost`."
+        ) from exc
     return XGBClassifier(
         n_estimators=100,
         max_depth=4,
