@@ -11,7 +11,7 @@
   "functions": {
     "api/index.py": {
       "maxDuration": 30,
-      "includeFiles": "models/production/**,src/**,web/**"
+      "includeFiles": "{models/production/**,src/**,web/**}"
     }
   }
 }

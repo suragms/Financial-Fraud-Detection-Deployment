@@ -23,8 +23,21 @@ from src.features.feature_engineering import (
 from src.models.scoring import FraudRiskPipeline, VALID_RISK_BAND_NAMES
 from src.utils.paths import PRODUCTION_MODELS_DIR
 
-PRODUCTION_PIPELINE_PATH = PRODUCTION_MODELS_DIR / "final_fraud_pipeline.joblib"
-PRODUCTION_METADATA_PATH = PRODUCTION_MODELS_DIR / "model_metadata.json"
+def _resolve_model_file(filename: str) -> Path:
+    candidates = [
+        PRODUCTION_MODELS_DIR / filename,
+        Path(__file__).resolve().parents[2] / "models" / "production" / filename,
+        Path.cwd() / "models" / "production" / filename,
+        Path("/var/task/models/production") / filename,
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return PRODUCTION_MODELS_DIR / filename
+
+
+PRODUCTION_PIPELINE_PATH = _resolve_model_file("final_fraud_pipeline.joblib")
+PRODUCTION_METADATA_PATH = _resolve_model_file("model_metadata.json")
 
 _FORBIDDEN_MODEL_COLUMNS = set(EXCLUDED_FEATURES)
 
@@ -54,7 +67,7 @@ def _validate_raw_inference_values(frame: pd.DataFrame) -> None:
 
 def load_production_pipeline(path: Path | None = None) -> FraudRiskPipeline:
     """Load the saved production wrapper. Does not fit or calibrate."""
-    target = path or PRODUCTION_PIPELINE_PATH
+    target = path or _resolve_model_file("final_fraud_pipeline.joblib")
     if not target.exists():
         raise FileNotFoundError(
             "Production pipeline was not found at "

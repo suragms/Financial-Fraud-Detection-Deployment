@@ -7,6 +7,7 @@ calibrate, or choose a new threshold. The Streamlit dashboard is unchanged.
 from __future__ import annotations
 
 import json
+import logging
 import math
 import sys
 from datetime import datetime
@@ -14,9 +15,17 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+# Configure Vercel-compatible standard logger
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("fraud_api")
+
+# Robust root and sys.path resolution for local and serverless execution
+FILE_PATH = Path(__file__).resolve()
+ROOT = FILE_PATH.parents[1] if FILE_PATH.parent.name == "api" else FILE_PATH.parent
+
+for candidate_path in (ROOT, Path.cwd(), Path("/var/task")):
+    if candidate_path.exists() and str(candidate_path) not in sys.path:
+        sys.path.insert(0, str(candidate_path))
 
 from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.exceptions import HTTPException
@@ -87,6 +96,7 @@ FIELD_LABELS = {
 }
 
 app = Flask(__name__)
+handler = app  # Explicit alias for serverless runtime bridges
 
 
 class ApiError(Exception):
@@ -98,13 +108,49 @@ class ApiError(Exception):
         self.status_code = status_code
 
 
+def _find_metadata_path() -> Path:
+    candidates = [
+        PRODUCTION_METADATA_PATH,
+        ROOT / "models" / "production" / "model_metadata.json",
+        Path.cwd() / "models" / "production" / "model_metadata.json",
+        Path("/var/task/models/production/model_metadata.json"),
+        FILE_PATH.parent.parent / "models" / "production" / "model_metadata.json",
+    ]
+    for c in candidates:
+        if c and c.exists():
+            return c
+    return PRODUCTION_METADATA_PATH
+
+
+def _find_web_dir() -> Path:
+    candidates = [
+        WEB_DIR,
+        ROOT / "web",
+        Path.cwd() / "web",
+        FILE_PATH.parent.parent / "web",
+        FILE_PATH.parent / "web",
+        Path("/var/task/web"),
+    ]
+    for c in candidates:
+        if c and c.exists() and (c / "index.html").exists():
+            return c
+    return WEB_DIR
+
+
 @lru_cache(maxsize=1)
 def _load_metadata() -> dict[str, Any]:
-    if not PRODUCTION_METADATA_PATH.exists():
+    meta_path = _find_metadata_path()
+    if not meta_path.exists():
+        logger.error("Production model metadata not found at %s", meta_path)
         raise ApiError("Production model is unavailable.", 503)
-    payload = json.loads(PRODUCTION_METADATA_PATH.read_text(encoding="utf-8"))
+    try:
+        payload = json.loads(meta_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        logger.exception("Failed to parse model metadata from %s: %s", meta_path, exc)
+        raise ApiError("Production model is unavailable.", 503) from exc
     threshold = float(payload.get("production_threshold", -1))
     if not 0.0 < threshold < 1.0:
+        logger.error("Invalid production threshold in metadata: %s", threshold)
         raise ApiError("Production model is unavailable.", 503)
     return payload
 
@@ -114,6 +160,10 @@ def _load_pipeline():
     try:
         return load_production_pipeline()
     except FileNotFoundError as exc:
+        logger.exception("Production pipeline artifact not found: %s", exc)
+        raise ApiError("Production model is unavailable.", 503) from exc
+    except Exception as exc:
+        logger.exception("Unexpected error loading production pipeline: %s", exc)
         raise ApiError("Production model is unavailable.", 503) from exc
 
 
@@ -279,6 +329,7 @@ def _handle_method(_exc):
 
 @app.errorhandler(Exception)
 def _handle_unexpected(exc):
+    logger.exception("Unexpected error during request: %s", exc)
     if isinstance(exc, ApiError):
         return _json_error(exc.message, exc.status_code)
     if isinstance(exc, ValidationError):
@@ -315,17 +366,17 @@ def predict():
 
 @app.get("/")
 def frontend_index():
-    return send_from_directory(WEB_DIR, "index.html")
+    return send_from_directory(_find_web_dir(), "index.html")
 
 
 @app.get("/styles.css")
 def frontend_styles():
-    return send_from_directory(WEB_DIR, "styles.css")
+    return send_from_directory(_find_web_dir(), "styles.css")
 
 
 @app.get("/app.js")
 def frontend_script():
-    return send_from_directory(WEB_DIR, "app.js")
+    return send_from_directory(_find_web_dir(), "app.js")
 
 
 if __name__ == "__main__":
